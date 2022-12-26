@@ -18,6 +18,7 @@ public class Game : MonoBehaviour
     public int ObstacleCount;
 
     private GameObject _botGameObject;
+    private Bot _bot;
     private NavMeshSurface _navMeshSurface;
 
     private Queue<GameObject> _destinationMarkers = new Queue<GameObject>();
@@ -54,12 +55,14 @@ public class Game : MonoBehaviour
             500f,
             NavMesh.AllAreas))
         {
-            var destinationMarker = GameObject.Instantiate(
-                DestinationMarkerPrefab,
-                new Vector3(closestHit.position.x, 1f, closestHit.position.z),
-                Quaternion.identity,
-                null);
-            _destinationMarkers.Enqueue(destinationMarker);
+            //var destinationMarker = GameObject.Instantiate(
+            //    DestinationMarkerPrefab,
+            //    new Vector3(closestHit.position.x, 1f, closestHit.position.z),
+            //    Quaternion.identity,
+            //    null);
+            //_destinationMarkers.Enqueue(destinationMarker);
+
+            _bot.QueueNavigationTo(closestHit.position);
 
             // create navigation path to the location
         }
@@ -82,6 +85,7 @@ public class Game : MonoBehaviour
                 closestHit.position,
                 Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)),
                 BotsParent.transform);
+            _bot = _botGameObject.GetComponent<Bot>();
         }
     }
 

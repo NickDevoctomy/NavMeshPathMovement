@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 8858237338995492521}
   - component: {fileID: 1108924863635811724}
   - component: {fileID: 2735953550986717487}
+  - component: {fileID: 226675331619082331}
   m_Layer: 0
   m_Name: Bot
   m_TagString: Untagged
@@ -304,3 +305,15 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &226675331619082331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8962248909977896709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64272a1cced2c6d4b86c5cbb69cfd1ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
