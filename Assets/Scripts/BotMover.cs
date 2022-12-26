@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UIElements;
 using static UnityEngine.GraphicsBuffer;
 
 public class BotMover : MonoBehaviour
@@ -26,16 +27,39 @@ public class BotMover : MonoBehaviour
         {
             return;
         }
-        Vector3 targetDirection = _destination.GetValueOrDefault() - transform.position;
-        float singleStep = RotationSpeed * Time.deltaTime;
-        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
-        transform.rotation = Quaternion.LookRotation(newDirection);
 
-        var angleToDestination = Angle(_destination.GetValueOrDefault());
-        var angleToDestinationAbs = Mathf.Abs(angleToDestination);
-        var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
 
-        Debug.Log($"We are {angleToDestinationAbs} degrees off target");
+        var targetDirection = _destination.GetValueOrDefault() - transform.position;
+        targetDirection.y = 0f;
+        var targetRotation = Quaternion.LookRotation(targetDirection);
+        var deltaAngle = Quaternion.Angle(transform.rotation, targetRotation);
+        var rotate = deltaAngle != 0F;
+
+        if(rotate)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                targetRotation,
+                RotationSpeed * Time.deltaTime / deltaAngle
+            );
+        }
+        else
+        {
+            // Move toward
+            var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
+            if (distance > _navMeshAgent.radius)
+            {
+                var axisAmout = distance / _navMeshAgent.radius;
+                axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
+                PerformVirtualVerticalAxis(axisAmout);
+                transform.Translate(new Vector3(0f, 0f, _desiredZTranslation.GetValueOrDefault()));
+            }
+            else
+            {
+                // reached destination
+                _destination = null;
+            }
+        }
 
         //if(_destination.HasValue)
         //{
