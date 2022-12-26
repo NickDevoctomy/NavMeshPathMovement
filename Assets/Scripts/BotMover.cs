@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
 public class BotMover : MonoBehaviour
 {
-    public float RotationSpeed = 1f;
+    public float RotationSpeed = 8f;
     public float MovementSpeed = 4f;
     public bool Ready = true;
     public Vector3 CurrentPosition;
@@ -21,66 +22,79 @@ public class BotMover : MonoBehaviour
 
     void Update()
     {
-        var destination = _destination;
-
-        if(_destination.HasValue)
+        if(!_destination.HasValue)
         {
-            var angleToDestination = Angle(_destination.GetValueOrDefault());
-            var angleToDestinationAbs = Mathf.Abs(angleToDestination);
-            if (angleToDestinationAbs > 5f)
-            {
-                Debug.Log($"We are {angleToDestinationAbs} degrees off target");
-                if (angleToDestination < 0f)
-                {
-                    var axisAmout = angleToDestinationAbs / 180f;
-                    axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-                    PerformVirtualHorizontalAxis(axisAmout);
-                }
-                else
-                {
-                    var axisAmout = angleToDestinationAbs / 180f;
-                    axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-                    PerformVirtualHorizontalAxis(-axisAmout);
-                }
-            }
+            return;
+        }
+        Vector3 targetDirection = _destination.GetValueOrDefault() - transform.position;
+        float singleStep = RotationSpeed * Time.deltaTime;
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 0.0f);
+        transform.rotation = Quaternion.LookRotation(newDirection);
 
-            var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
-            if (distance > 0.5f)
-            {
-                var axisAmout = distance / _navMeshAgent.radius;
-                axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-                PerformVirtualVerticalAxis(axisAmout);
-            }
-            else
-            {
-                // reached destination
-                _destination = null;
-            }
-        }
+        var angleToDestination = Angle(_destination.GetValueOrDefault());
+        var angleToDestinationAbs = Mathf.Abs(angleToDestination);
+        var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
 
-        if (_desiredYRotation.HasValue)
-        {
-            Debug.Log("Rotating...");
-            transform.Rotate(new Vector3(0f, _desiredYRotation.GetValueOrDefault(), 0f));
-            _desiredYRotation = null;
-        }
-        else
-        {
-            if (_desiredZTranslation.HasValue)
-            {
-                Debug.Log("Translating...");
-                transform.Translate(new Vector3(0f, 0f, _desiredZTranslation.GetValueOrDefault()));
-                _desiredZTranslation = null;
-            }
-        }
+        Debug.Log($"We are {angleToDestinationAbs} degrees off target");
 
-        if(_destination == null &&
-            !Ready)
-        {
-            Debug.Log("Reached destination!");
-            CurrentPosition = destination.GetValueOrDefault();
-            Ready = true;
-        }
+        //if(_destination.HasValue)
+        //{
+        //    var angleToDestination = Angle(_destination.GetValueOrDefault());
+        //    var angleToDestinationAbs = Mathf.Abs(angleToDestination);
+        //    if (angleToDestinationAbs > 5f)
+        //    {
+        //        Debug.Log($"We are {angleToDestinationAbs} degrees off target");
+        //        if (angleToDestination < 0f)
+        //        {
+        //            var axisAmout = angleToDestinationAbs / 180f;
+        //            axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
+        //            PerformVirtualHorizontalAxis(axisAmout);
+        //        }
+        //        else
+        //        {
+        //            var axisAmout = angleToDestinationAbs / 180f;
+        //            axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
+        //            PerformVirtualHorizontalAxis(-axisAmout);
+        //        }
+        //    }
+
+        //    var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
+        //    if (distance > 0.5f)
+        //    {
+        //        var axisAmout = distance / _navMeshAgent.radius;
+        //        axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
+        //        PerformVirtualVerticalAxis(axisAmout);
+        //    }
+        //    else
+        //    {
+        //        // reached destination
+        //        _destination = null;
+        //    }
+        //}
+
+        //if (_desiredYRotation.HasValue)
+        //{
+        //    Debug.Log("Rotating...");
+        //    transform.Rotate(new Vector3(0f, _desiredYRotation.GetValueOrDefault(), 0f));
+        //    _desiredYRotation = null;
+        //}
+        //else
+        //{
+        //    if (_desiredZTranslation.HasValue)
+        //    {
+        //        Debug.Log("Translating...");
+        //        transform.Translate(new Vector3(0f, 0f, _desiredZTranslation.GetValueOrDefault()));
+        //        _desiredZTranslation = null;
+        //    }
+        //}
+
+        //if(_destination == null &&
+        //    !Ready)
+        //{
+        //    Debug.Log("Reached destination!");
+        //    CurrentPosition = destination.GetValueOrDefault();
+        //    Ready = true;
+        //}
     }
 
     //private void OnDrawGizmos()
