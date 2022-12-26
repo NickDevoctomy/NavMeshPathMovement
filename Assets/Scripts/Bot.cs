@@ -21,7 +21,20 @@ public class Bot : MonoBehaviour
     {
         if(_route.TryPeek(out var nextPos))
         {
-            _botMover.MoveTo(nextPos);
+            if(_botMover.Ready)
+            {
+                if (_botMover.CurrentPosition != nextPos)
+                {
+                    Debug.Log($"Move to {nextPos}");
+                    _botMover.MoveTo(nextPos);
+                }
+                else
+                {
+                    Debug.Log($"Proceeding to next on path...");
+                    _route.Dequeue();
+                }
+            }
+
         }
     }
 
