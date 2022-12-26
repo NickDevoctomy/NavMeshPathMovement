@@ -8,16 +8,21 @@ public class Bot : MonoBehaviour
     private Vector3 _end;
 
     private NavMeshAgent _navMeshAgent;
+    private BotMover _botMover;
 
     void Start()
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
+        _botMover = GetComponent<BotMover>();
         _end = transform.position;
     }
 
     void Update()
     {
-        
+        if(_route.TryPeek(out var nextPos))
+        {
+            _botMover.MoveTo(nextPos);
+        }
     }
 
     private void OnDrawGizmos()
@@ -26,14 +31,30 @@ public class Bot : MonoBehaviour
         if (path.Length > 0)
         {
             Gizmos.color = Color.green;
-            for (int i = 0; i < path.Length - 1; i++)
+
+            var startPos = new Vector3(transform.position.x, 0.5f, transform.position.z);
+            var firstCorner = new Vector3(path[0].x, 0.5f, path[0].z);
+            Gizmos.DrawLine(
+                startPos,
+                firstCorner);
+            Gizmos.DrawSphere(firstCorner, 0.1f);
+
+            if (path.Length > 1)
             {
-                var curCorner = new Vector3(path[i].x, 0.5f, path[i].z);
-                var nextCorner = new Vector3(path[i + 1].x, 0.5f, path[i + 1].z);
-                Gizmos.DrawSphere(nextCorner, 0.1f);
+                var nextCorner = new Vector3(path[1].x, 0.5f, path[1].z);
                 Gizmos.DrawLine(
-                    curCorner,
-                    nextCorner);
+                    firstCorner,
+                    nextCorner);              
+
+                for (int i = 1; i < path.Length - 1; i++)
+                {
+                    var curCorner = new Vector3(path[i].x, 0.5f, path[i].z);
+                    nextCorner = new Vector3(path[i + 1].x, 0.5f, path[i + 1].z);
+                    Gizmos.DrawSphere(nextCorner, 0.1f);
+                    Gizmos.DrawLine(
+                        curCorner,
+                        nextCorner);
+                }
             }
         }
     }
@@ -47,8 +68,19 @@ public class Bot : MonoBehaviour
             NavMesh.AllAreas,
             navMeshPath))
         {
-            foreach(var curCorner in navMeshPath.corners)
+            for(int i = 0; i < navMeshPath.corners.Length; i++)
             {
+                var curCorner = navMeshPath.corners[i];
+                if (i == 0 && _route.Count == 0)
+                {
+                    var levelCorner = new Vector3(curCorner.x, transform.position.y, curCorner.z);
+                    var distance = Vector3.Distance(transform.position, levelCorner);
+                    if(distance == 0)
+                    {
+                        continue;
+                    }
+                }
+
                 _route.Enqueue(new Vector3(curCorner.x, curCorner.y, curCorner.z));
             }
             _end = destination;
