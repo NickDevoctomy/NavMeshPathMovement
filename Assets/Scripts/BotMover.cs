@@ -5,8 +5,8 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BotMover : MonoBehaviour
 {
-    public float RotationSpeed = 8f;
-    public float MovementSpeed = 4f;
+    public float RotationSpeed = 12f;
+    public float MovementSpeed = 2f;
     public bool Ready = true;
     public Vector3 CurrentPosition;
     public Vector3 NextPos;
@@ -37,11 +37,11 @@ public class BotMover : MonoBehaviour
 
         if(rotate)
         {
+            Debug.Log("Rotating!");
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                RotationSpeed * Time.deltaTime / deltaAngle
-            );
+                RotationSpeed * Time.deltaTime / deltaAngle);
         }
         else
         {
@@ -49,76 +49,20 @@ public class BotMover : MonoBehaviour
             var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
             if (distance > _navMeshAgent.radius)
             {
-                var axisAmout = distance / _navMeshAgent.radius;
-                axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-                PerformVirtualVerticalAxis(axisAmout);
-                transform.Translate(new Vector3(0f, 0f, _desiredZTranslation.GetValueOrDefault()));
+                Debug.Log("Moving!");
+                transform.position = Vector3.Slerp(
+                    transform.position,
+                    _destination.GetValueOrDefault(),
+                    MovementSpeed * Time.deltaTime / distance);
             }
             else
             {
-                // reached destination
+                CurrentPosition = _destination.GetValueOrDefault();
                 _destination = null;
+                Ready = true;
+                Debug.Log("Finished moving!");
             }
         }
-
-        //if(_destination.HasValue)
-        //{
-        //    var angleToDestination = Angle(_destination.GetValueOrDefault());
-        //    var angleToDestinationAbs = Mathf.Abs(angleToDestination);
-        //    if (angleToDestinationAbs > 5f)
-        //    {
-        //        Debug.Log($"We are {angleToDestinationAbs} degrees off target");
-        //        if (angleToDestination < 0f)
-        //        {
-        //            var axisAmout = angleToDestinationAbs / 180f;
-        //            axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-        //            PerformVirtualHorizontalAxis(axisAmout);
-        //        }
-        //        else
-        //        {
-        //            var axisAmout = angleToDestinationAbs / 180f;
-        //            axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-        //            PerformVirtualHorizontalAxis(-axisAmout);
-        //        }
-        //    }
-
-        //    var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
-        //    if (distance > 0.5f)
-        //    {
-        //        var axisAmout = distance / _navMeshAgent.radius;
-        //        axisAmout = Mathf.Clamp(axisAmout, 0f, 1f);
-        //        PerformVirtualVerticalAxis(axisAmout);
-        //    }
-        //    else
-        //    {
-        //        // reached destination
-        //        _destination = null;
-        //    }
-        //}
-
-        //if (_desiredYRotation.HasValue)
-        //{
-        //    Debug.Log("Rotating...");
-        //    transform.Rotate(new Vector3(0f, _desiredYRotation.GetValueOrDefault(), 0f));
-        //    _desiredYRotation = null;
-        //}
-        //else
-        //{
-        //    if (_desiredZTranslation.HasValue)
-        //    {
-        //        Debug.Log("Translating...");
-        //        transform.Translate(new Vector3(0f, 0f, _desiredZTranslation.GetValueOrDefault()));
-        //        _desiredZTranslation = null;
-        //    }
-        //}
-
-        //if(_destination == null &&
-        //    !Ready)
-        //{
-        //    Debug.Log("Reached destination!");
-        //    CurrentPosition = destination.GetValueOrDefault();
-        //    Ready = true;
-        //}
     }
 
     //private void OnDrawGizmos()
