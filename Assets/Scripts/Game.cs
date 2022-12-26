@@ -1,12 +1,17 @@
+using System.Collections.Generic;
 using Unity.AI.Navigation;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Game : MonoBehaviour
 {
+    private static Game _instance;
+
     public GameObject BotPrefab;
     public GameObject ObstacleParent;
     public GameObject BotsParent;
+    public GameObject DestinationMarkerPrefab;
     public Material ObstacleMaterial;
     public int Width = 50;
     public int Depth = 50;
@@ -15,9 +20,18 @@ public class Game : MonoBehaviour
     private GameObject _botGameObject;
     private NavMeshSurface _navMeshSurface;
 
+    private Queue<GameObject> _destinationMarkers = new Queue<GameObject>();
+
 
     void Start()
     {
+        if(_instance != null)
+        {
+            DestroyImmediate(this);
+            return;
+        }
+
+        _instance = this;
         CreateObstacles();
         GenerateNavMesh();
         CreateBot();
@@ -25,6 +39,30 @@ public class Game : MonoBehaviour
 
     void Update()
     {
+    }
+
+    public void MoveToRandom()
+    {
+        // chose a random location in the arena
+        var pos = new Vector3(
+        Random.Range(0, Width) - Width / 2,
+        0.5f,
+        Random.Range(0, Depth) - Depth / 2);
+        if (NavMesh.SamplePosition(
+            pos,
+            out var closestHit,
+            500f,
+            NavMesh.AllAreas))
+        {
+            var destinationMarker = GameObject.Instantiate(
+                DestinationMarkerPrefab,
+                new Vector3(closestHit.position.x, 1f, closestHit.position.z),
+                Quaternion.identity,
+                null);
+            _destinationMarkers.Enqueue(destinationMarker);
+
+            // create navigation path to the location
+        }
     }
 
     private void CreateBot()
