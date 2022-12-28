@@ -293,7 +293,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8962248909977896709}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.5
+  m_Radius: 0.75
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -330,8 +330,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8cf8bd7423a9b43b01b6fb7ebb8181, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RotationSpeed: 12
-  MovementSpeed: 2
+  RotationSpeed: 1
+  MovementSpeed: 1
   Ready: 1
   CurrentPosition: {x: 0, y: 0, z: 0}
   NextPos: {x: 0, y: 0, z: 0}

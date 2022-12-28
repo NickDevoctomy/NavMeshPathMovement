@@ -94,7 +94,7 @@ public class Bot : MonoBehaviour
                     }
                 }
 
-                _route.Enqueue(new Vector3(curCorner.x, curCorner.y, curCorner.z));
+                _route.Enqueue(new Vector3(curCorner.x, transform.position.y, curCorner.z));
             }
             _end = destination;
         }

@@ -1,21 +1,17 @@
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
 
 public class BotMover : MonoBehaviour
 {
-    public float RotationSpeed = 12f;
-    public float MovementSpeed = 2f;
+    public float RotationSpeed = 3f;
+    public float MovementSpeed = 8f;
     public bool Ready = true;
     public Vector3 CurrentPosition;
     public Vector3 NextPos;
 
     private NavMeshAgent _navMeshAgent;
     private Vector3? _destination;
-    private float? _desiredYRotation;
-    private float? _desiredZTranslation;
-
+    
     void Start()
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
@@ -28,58 +24,55 @@ public class BotMover : MonoBehaviour
             return;
         }
 
-
-        var targetDirection = _destination.GetValueOrDefault() - transform.position;
-        targetDirection.y = 0f;
-        var targetRotation = Quaternion.LookRotation(targetDirection);
-        var deltaAngle = Quaternion.Angle(transform.rotation, targetRotation);
-        var rotate = deltaAngle != 0F;
-
-        if(rotate)
+        var angle = SignedAngle(_destination.GetValueOrDefault());
+        if(Mathf.Abs(angle) > 0.05f)
         {
-            Debug.Log("Rotating!");
-            transform.rotation = Quaternion.Slerp(
+            Debug.Log($"Signed delta angle = {angle}");
+            var targetDirection = _destination.GetValueOrDefault() - transform.position;
+            targetDirection.y = 0f;
+            var targetRotation = Quaternion.LookRotation(targetDirection);
+
+            transform.rotation = Quaternion.Lerp(
                 transform.rotation,
                 targetRotation,
-                RotationSpeed * Time.deltaTime / deltaAngle);
+                Time.deltaTime * RotationSpeed);
         }
         else
         {
-            // Move toward
             var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
+            Debug.Log($"Distance = {distance}");
+
             if (distance > _navMeshAgent.radius)
             {
-                Debug.Log("Moving!");
-                transform.position = Vector3.Slerp(
+                transform.position = Vector3.Lerp(
                     transform.position,
                     _destination.GetValueOrDefault(),
-                    MovementSpeed * Time.deltaTime / distance);
+                    Time.deltaTime * MovementSpeed);
             }
             else
             {
                 CurrentPosition = _destination.GetValueOrDefault();
                 _destination = null;
                 Ready = true;
-                Debug.Log("Finished moving!");
             }
         }
     }
 
-    //private void OnDrawGizmos()
-    //{
-    //    if(_destination.HasValue)
-    //    {
-    //        Gizmos.color = Color.red;
-    //        Gizmos.DrawLine(
-    //            transform.position,
-    //            transform.position + transform.forward * 5);
+    private void OnDrawGizmos()
+    {
+        if (_destination.HasValue)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(
+                transform.position,
+                transform.position + transform.forward * 5);
 
-    //        Gizmos.color = Color.blue;
-    //        Gizmos.DrawLine(
-    //            transform.position,
-    //            _destination.GetValueOrDefault());
-    //    }
-    //}
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(
+                transform.position,
+                _destination.GetValueOrDefault());
+        }
+    }
 
     public bool MoveTo(Vector3 destination)
     {
@@ -95,7 +88,7 @@ public class BotMover : MonoBehaviour
         return false;
     }
 
-    private float Angle(Vector3 destination)
+    private float SignedAngle(Vector3 destination)
     {
         var angleToNext = Vector3.SignedAngle(
                destination - transform.position,
@@ -104,19 +97,19 @@ public class BotMover : MonoBehaviour
         return angleToNext;
     }
 
-    private void PerformVirtualHorizontalAxis(float value)
-    {
-        //Debug.Log($"VHAxis =  {value}");
-        var horizontalAxis = value;
-        var rotation = horizontalAxis * RotationSpeed;
-        _desiredYRotation = rotation;
-    }
+    //private void PerformVirtualHorizontalAxis(float value)
+    //{
+    //    //Debug.Log($"VHAxis =  {value}");
+    //    var horizontalAxis = value;
+    //    var rotation = horizontalAxis * RotationSpeed;
+    //    _desiredYRotation = rotation;
+    //}
 
-    public void PerformVirtualVerticalAxis(float value)
-    {
-        //Debug.Log($"VVAxis =  {value}");
-        var verticalAxis = value;
-        var movement = Time.deltaTime * (verticalAxis * MovementSpeed);
-        _desiredZTranslation = movement;
-    }
+    //public void PerformVirtualVerticalAxis(float value)
+    //{
+    //    //Debug.Log($"VVAxis =  {value}");
+    //    var verticalAxis = value;
+    //    var movement = Time.deltaTime * (verticalAxis * MovementSpeed);
+    //    _desiredZTranslation = movement;
+    //}
 }
