@@ -7,12 +7,10 @@ public class Bot : MonoBehaviour
     private Queue<Vector3> _route = new Queue<Vector3>();
     private Vector3 _end;
 
-    private NavMeshAgent _navMeshAgent;
     private BotMover _botMover;
 
     void Start()
     {
-        _navMeshAgent = GetComponent<NavMeshAgent>();
         _botMover = GetComponent<BotMover>();
         _end = transform.position;
     }
@@ -96,7 +94,10 @@ public class Bot : MonoBehaviour
 
                 _route.Enqueue(new Vector3(curCorner.x, transform.position.y, curCorner.z));
             }
-            _end = destination;
+            _end = new Vector3(
+                destination.x,
+                transform.position.y,
+                destination.z);
         }
     }
 

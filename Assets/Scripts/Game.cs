@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.AI.Navigation;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -20,9 +19,6 @@ public class Game : MonoBehaviour
     private GameObject _botGameObject;
     private Bot _bot;
     private NavMeshSurface _navMeshSurface;
-
-    private Queue<GameObject> _destinationMarkers = new Queue<GameObject>();
-
 
     void Start()
     {
@@ -55,16 +51,7 @@ public class Game : MonoBehaviour
             500f,
             NavMesh.AllAreas))
         {
-            //var destinationMarker = GameObject.Instantiate(
-            //    DestinationMarkerPrefab,
-            //    new Vector3(closestHit.position.x, 1f, closestHit.position.z),
-            //    Quaternion.identity,
-            //    null);
-            //_destinationMarkers.Enqueue(destinationMarker);
-
             _bot.QueueNavigationTo(closestHit.position);
-
-            // create navigation path to the location
         }
     }
 
@@ -86,6 +73,7 @@ public class Game : MonoBehaviour
                 Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0)),
                 BotsParent.transform);
             _bot = _botGameObject.GetComponent<Bot>();
+            _navMeshSurface.BuildNavMesh();
         }
     }
 
