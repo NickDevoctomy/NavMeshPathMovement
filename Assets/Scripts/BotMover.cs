@@ -29,7 +29,7 @@ public class BotMover : MonoBehaviour
         {
             Debug.Log($"Signed delta angle = {angle}");
             var targetDirection = _destination.GetValueOrDefault() - transform.position;
-            targetDirection.y = transform.position.y; //0f;
+            targetDirection.y = 0f;
             var targetRotation = Quaternion.LookRotation(targetDirection);
 
             transform.rotation = Quaternion.Lerp(
