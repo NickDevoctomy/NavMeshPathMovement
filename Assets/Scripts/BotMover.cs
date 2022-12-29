@@ -25,7 +25,7 @@ public class BotMover : MonoBehaviour
         }
 
         var angle = SignedAngle(_destination.GetValueOrDefault());
-        if(Mathf.Abs(angle) > 0.05f)
+        if(Mathf.Abs(angle) > 1f)
         {
             Debug.Log($"Signed delta angle = {angle}");
             var targetDirection = _destination.GetValueOrDefault() - transform.position;
@@ -37,7 +37,9 @@ public class BotMover : MonoBehaviour
                 targetRotation,
                 Time.deltaTime * RotationSpeed);
         }
-        else
+
+
+        if(Mathf.Abs(angle) <= 1f)
         {
             var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
             Debug.Log($"Distance = {distance}");
