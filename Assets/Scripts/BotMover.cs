@@ -3,8 +3,11 @@ using UnityEngine.AI;
 
 public class BotMover : MonoBehaviour
 {
+    public bool ControlledMovement = true;
     public float RotationSpeed = 3f;
     public float MovementSpeed = 8f;
+    public float MinAnglesForForcedRotation = 1f;
+    public float MinDistanceFromMoveTarget = 0.5f;
     public bool Ready = true;
     public Vector3 CurrentPosition;
     public Vector3 NextPos;
@@ -19,13 +22,13 @@ public class BotMover : MonoBehaviour
 
     void Update()
     {
-        if(!_destination.HasValue)
+        if(!ControlledMovement || !_destination.HasValue)
         {
             return;
         }
 
         var angle = SignedAngle(_destination.GetValueOrDefault());
-        if(Mathf.Abs(angle) > 1f)
+        if(Mathf.Abs(angle) > MinAnglesForForcedRotation)
         {
             Debug.Log($"Signed delta angle = {angle}");
             var targetDirection = _destination.GetValueOrDefault() - transform.position;
@@ -39,12 +42,12 @@ public class BotMover : MonoBehaviour
         }
 
 
-        if(Mathf.Abs(angle) <= 1f)
+        if(Mathf.Abs(angle) <= MinAnglesForForcedRotation)
         {
             var distance = Vector3.Distance(transform.position, _destination.GetValueOrDefault());
             Debug.Log($"Distance = {distance}");
 
-            if (distance > _navMeshAgent.radius)
+            if (distance > MinDistanceFromMoveTarget)
             {
                 transform.position = Vector3.Lerp(
                     transform.position,
@@ -78,12 +81,20 @@ public class BotMover : MonoBehaviour
 
     public bool MoveTo(Vector3 destination)
     {
-        if(_destination != destination &&
-            Ready)
+        if(ControlledMovement)
         {
-            Ready = false;
-            _destination = destination;
-            NextPos = destination;
+            if (_destination != destination &&
+                Ready)
+            {
+                Ready = false;
+                _destination = destination;
+                NextPos = destination;
+                return true;
+            }
+        }
+        else
+        {
+            _navMeshAgent.destination = destination;
             return true;
         }
 
